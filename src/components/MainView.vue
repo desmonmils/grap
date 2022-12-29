@@ -7,19 +7,17 @@
     <div>
       <h3>Заполните таблицу</h3>
       <div class="input-group">
-      <span class="input-group-text">Факт, вопрос и значения фактов</span>
-      <input type="text" aria-label="First name" class="form-control" data-toggle="tooltip" data-placement="top" title="Введите имя факта" v-model="infotemp.fakt" >
-      <input type="text" aria-label="Last name" class="form-control" data-toggle="tooltip" data-placement="top" title="Введите вопрос по факту" v-model="infotemp.descr">
-      <input type="text" aria-label="Last name" class="form-control" data-toggle="tooltip" data-placement="top" title="Введите допустимое значения фактов через ';'" v-model="infotemp.infofakt">
+      <span class="input-group-text">Полное имя факта, краткое обозначение и значения фактов</span>
+      <input type="text" aria-label="First name" class="form-control" data-toggle="tooltip" data-placement="top" title="Введите полное имя факта" v-model="infotemp.fakt" >
+      <input type="text" aria-label="Last name" class="form-control" data-toggle="tooltip" data-placement="top" title="Введите краткое обозначение" v-model="infotemp.descr">
+      <input type="text" aria-label="Last name" class="form-control" data-toggle="tooltip" data-placement="top" title="Введите значения фактов через ';'" v-model="infotemp.infofakt">
       </div>
       <p></p>
-      <b-button variant="btn btn-success" @click="save" v-if="infotemp.fakt !== '' && infotemp.faktinfo !== ''">Добавить</b-button>
-      <b-button variant="btn btn-success" @click="save" v-else disabled>Добавить</b-button>
-    </div>
-    <div>
-      <h3>Введенные факты</h3>
+      <b-button variant="btn btn-success" @click="save" v-if="infotemp.fakt !== '' && infotemp.faktinfo !== ''">Сохранить</b-button>
+      <b-button variant="btn btn-success" @click="save" v-else disabled>Сохранить</b-button>
+      <h3>Введеные факты</h3>
       <b-form-textarea
-        id="textarea"
+        id="textarea1"
         v-model="textArray1"
         placeholder=""
         rows="3"
@@ -31,28 +29,42 @@
       <p></p>
     </div>
     <div>
-      <b-form-input v-model="temp.f1" placeholder="Факт 1"></b-form-input>
+      <select v-model="temp.f1" class="form-select" aria-label="Default select example">
+        <option value="" disabled selected>Факт 1</option>
+        <option v-for="i in fact_array" :key="i">{{ i.fakt }}</option>
+      </select>
+    </div>
+    <div>
+      <select v-model="temp.r" class="form-select" aria-label="Default select example">
+        <option value="" disabled selected>Тип отношения</option>
+        <option value="И">И</option>
+        <option value="ИЛИ">Или</option>
+      </select>
+    </div>
+    <div>
+      <select v-model="temp.f2" class="form-select" aria-label="Default select example">
+        <option value="" disabled selected>Факт 2</option>
+        <option v-for="i in fact_array" :key="i">{{ i.fakt }}</option>
+      </select>
     </div>
     <div class="form-floating">
     <textarea class="form-control" v-model="temp.val1" placeholder="Leave a comment here" id="floatingTextarea2" style="height: 100px"></textarea>
     <label for="floatingTextarea2">Значение факта 1</label>
-    </div>
-    <div>
-      <b-form-input v-model="temp.r" placeholder="Напишите тип отношения"></b-form-input>
-    </div>
-    <div>
-      <b-form-input v-model="temp.f2" placeholder="Факт 2"></b-form-input>
     </div>
     <div class="form-floating">
     <textarea class="form-control" v-model="temp.val2" placeholder="Leave a comment here" id="floatingTextarea2" style="height: 100px"></textarea>
     <label for="floatingTextarea2">Значение факта 2</label>
     </div>
     <div>
-      <b-form-input v-model="temp.f3" placeholder="Факт 3"></b-form-input>
-    </div>
-    <div class="form-floating">
-    <textarea class="form-control" v-model="temp.val3" placeholder="Leave a comment here" id="floatingTextarea2" style="height: 100px"></textarea>
-    <label for="floatingTextarea2">Значение факта 3</label>
+      <h3>Итоговый факт</h3>
+      <select v-model="temp.f3" class="form-select" aria-label="Default select example">
+        <option value="" disabled selected>Факт 3</option>
+        <option v-for="i in fact_array" :key="i">{{ i.fakt }}</option>
+      </select>
+      <div class="form-floating">
+      <textarea class="form-control" v-model="temp.val3" placeholder="Leave a comment here" id="floatingTextarea2" style="height: 100px"></textarea>
+      <label for="floatingTextarea2">Значение факта 3</label>
+      </div>  
     </div>
     <h3>Данные</h3>
     <b-form-textarea
@@ -64,14 +76,13 @@
         readonly
     ></b-form-textarea>
     <p></p>
-    <b-button @click="addText" variant="btn btn-primary" v-if="temp.f1 !=='' && temp.r !== '' && temp.f2 !== '' && temp.info1 !== '' && temp.info2 !== '' && temp.f3 !== '' && temp.val1 !== '' && temp.val2 !== '' && temp.val3 !== ''">Добавить отношение</b-button>
+    <b-button @click="addText" variant="btn btn-primary" v-if="temp.f1 !=='' && temp.r !== '' && temp.f2 !== '' && temp.val1 !== '' && temp.val2 !== '' && temp.val3 !== ''">Добавить отношение</b-button>
     <b-button @click="addText" variant="btn btn-primary" v-else disabled>Добавить отношение</b-button>
     <b-button  variant="btn btn-warning" v-if="textArray !== ''" @click="sendData">Создать граф</b-button>
     <b-button  variant="btn btn-warning" v-else disabled>Создать граф</b-button>
     <b-button  variant="btn btn-danger" v-if="textArray !== ''" @click="clearAll">Очистить</b-button>
     <b-button  variant="btn btn-danger" v-else disabled>Очистить</b-button>
     <b-button  variant="btn btn-info" @click="savefile">Сохранить отчет</b-button>
-    <b-button  variant="btn btn-info" @click="tabe">Посмтроить таблицу</b-button>
   </div>
   <div v-show="ready">
     <v-network-graph
@@ -108,9 +119,9 @@ export default {
         f1: "",
         r: "",
         f2: "",
+        f3: "",
         val1: "",
         val2: "",
-        f3: "",
         val3: ""
       },
       array: [],
@@ -122,11 +133,15 @@ export default {
         node2: { name: "Node 2" },
         node3: { name: "Node 3" },
         node4: { name: "Node 4" },
+        node5: { name: "Node 5" },
+        node6: { name: "Node 6" },
       },
       edges: {
         edge1: { source: "node1", target: "node2" },
         edge2: { source: "node2", target: "node3" },
         edge3: { source: "node3", target: "node4" },
+        edge4: { source: "node4", target: "node5" },
+        edge5: { source: "node5", target: "node6" },
       },
       layouts: {
           nodes: {
@@ -134,10 +149,13 @@ export default {
             node2: { x: 50, y: 50 },
             node3: { x: 100, y: 0 },
             node4: { x: 150, y: 50 },
+            node5: { x: 200, y: 0 },
+            node6: { x: 250, y: 50},
           }
         },
       kout : 0,
-      ready: false
+      ready: false,
+      coutt : 0
     }
   },
   methods: {
@@ -151,27 +169,21 @@ export default {
       this.temp.f2 = "";
       this.temp.val1 = "";
       this.temp.val2 = "";
-      this.temp.f3 = "";
       this.temp.val3 = "";
-
     },
     addText() {
-      if (this.temp.f1 === this.temp.f2 === this.temp.f3) {
+      if ((this.temp.f1 === this.temp.f2) || (this.temp.f1 === this.temp.f3) || (this.temp.f2 === this.temp.f3)){
         this.warning_text = "Петли не допустимы!";
         this.show = true;
         this.clearFields();
         setTimeout(this.closeAlert, 2000);
         return;
       }
-      var obj = { ...this.temp};
+      var obj = { ...this.temp };
       this.array.push(obj);
       this.kout += 1;
-      this.textArray += `Правило `+ `${this.kout} `+` ${this.temp.f1},` + `${this.temp.r},` + `${this.temp.f2},` + `${this.temp.val1},` + `${this.temp.val2} => `+ `${this.temp.f3} = ` + `${this.temp.val3}\n` ;
+      this.textArray += `Правило `+ `${this.kout}: `+` ${this.temp.f1}: ` + ` ${this.temp.val1} ` + ` ${this.temp.r} ` + ` ${this.temp.f2}: ` + ` ${this.temp.val2} ` + ` => ${this.temp.val3}\n`;
       this.clearFields();
-      if (this.temp.check === 1){
-        this.temp.f2 += 'last';
-        return;
-      }
     },
     async sendData() {
       try {
@@ -179,8 +191,7 @@ export default {
           data: this.array
         });
         if (response.status === 200) {
-          localStorage.setItem("nodes1", JSON.stringify(response.data.response.nodes1));
-          localStorage.setItem("nodes2", JSON.stringify(response.data.response.nodes2))
+          localStorage.setItem("nodes", JSON.stringify(response.data.response.nodes));
           localStorage.setItem("edges", JSON.stringify(response.data.response.edges));
           localStorage.setItem("layouts", JSON.stringify(response.data.response.layouts));
           this.router.push("/GraphView");
@@ -190,8 +201,7 @@ export default {
         this.show = true;
         setTimeout(this.closeAlert, 2000);
       } finally {
-        this.nodes1 = JSON.parse(localStorage.getItem("nodes1"));
-        this.nodes2 = JSON.parse(localStorage.getItem("nodes2"));
+        this.nodes = JSON.parse(localStorage.getItem("nodes"));
         this.edges = JSON.parse(localStorage.getItem("edges"));
         this.layouts = JSON.parse(localStorage.getItem("layouts"));
         this.ready = true;
@@ -201,13 +211,15 @@ export default {
       this.array = [];
       this.clearFields();
       this.textArray = "";
+      this.textArray1 = "";
     },
     save() {
       let fact = { ...this.infotemp };
       fact.infofakt = this.parse_string(fact.infofakt);
       this.fact_array.push(fact);
-      this.textArray1 += `Имя факта: ` + `${this.infotemp.fakt} ` + `Возможные значения: ` + `${this.infotemp.infofakt}\n`;
+      this.textArray1 += `${this.infotemp.fakt} ` + ` ${this.infotemp.descr} ` + ` ${this.infotemp.infofakt}\n`;
       this.clear_fact();
+      this.coutt += 1;
     },
     clear_fact() {
       this.infotemp.fakt = "";
@@ -260,7 +272,7 @@ export default {
       let rule_counter = 1;
       let str = "";
       for (let el of data) {
-        str = str + `Правило ${rule_counter}:\nЕСЛИ\n${el.f1}=${el.val1}\n${el.r}\n${el.f2}=${el.val2}\nТО ${el.f3}=${el.val3}\n\n`;
+        str = str + `Правило ${rule_counter}:\nЕСЛИ\n${el.f1}=${el.val1}\n${el.r}\n${el.f2}=${el.val2}\nТО ${el.val3}\n`;
         rule_counter += 1;
       }
       return str;
